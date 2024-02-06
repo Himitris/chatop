@@ -3,8 +3,10 @@ package com.chatop.api.controller;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +22,7 @@ import com.chatop.api.service.JWTService;
 import com.chatop.api.service.UserService;
 
 import java.util.Date;
+import java.nio.file.attribute.UserPrincipal;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -57,12 +60,11 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String getToken(Authentication authentication, LoginRequest loginRequest) {
+    public String getToken(@RequestBody LoginRequest loginRequest) { 
         User user = userService.findByEmail(loginRequest.login);
-        System.out.println(user);
-        if (user != null && user.getPassword().equals(loginRequest.password)) {
+        if (user != null && springSecurityConfig.passwordEncoder().matches(loginRequest.password, user.getPassword())) { 
             // Générer et retourner un token (peut être implémenté en fonction de vos besoins)
-            String token = jwtService.generateToken(authentication);
+            String token = jwtService.generateToken(loginRequest);
             return token;
         } else {
             return "Échec de la connexion. Vérifiez vos informations d'identification.";
@@ -91,14 +93,12 @@ public class UserController {
         return emailInfo;
     }
 
-    private String generateToken(User user) {
-        //  TODO : JWT (JSON Web Token) 
-        return "votre_token_généré_ici";
-    }
+    @GetMapping
+    public ResponseEntity<?> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
-    @GetMapping("/me")
-    public Optional<User> getMe() {
-        return userService.getMe();
+        return ResponseEntity.ok(userPrincipal);
     }
 
 }
