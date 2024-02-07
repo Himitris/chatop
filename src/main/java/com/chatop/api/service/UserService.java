@@ -1,5 +1,7 @@
 package com.chatop.api.service;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -57,4 +59,9 @@ public class UserService {
         String token = jwtTokenProvider.generateToken(authentication);
         return token;
     }
+
+    public Optional<User> getUserById(final Long id) {
+        return userRepository.findById(id);
+    }
+
 }

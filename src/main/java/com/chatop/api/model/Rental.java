@@ -31,7 +31,7 @@ public class Rental {
     private String description;
     
     @Column(name="owner_id")
-    private int ownerId;
+    private Long ownerId;
     
     @Column(name="created_at")
     private Date createdAt;

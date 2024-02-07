@@ -1,11 +1,10 @@
 package com.chatop.api.service;
-import java.util.Optional;
 
 import org.springframework.web.multipart.MultipartFile;
 
 public class StorageService {
     // This method is just an example. You need to implement it based on your storage requirements.
-    public String save(Optional<MultipartFile> file) {
+    public String save(MultipartFile file) {
         // Implement your logic for saving the file (e.g., save to a local directory, upload to cloud storage, etc.)
         // Return the URL or path of the saved file.
         // Note: You may need to handle exceptions and generate a unique file name.

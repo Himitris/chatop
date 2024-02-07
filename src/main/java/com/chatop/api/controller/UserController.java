@@ -1,7 +1,5 @@
 package com.chatop.api.controller;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.chatop.api.DTO.LoginRequest;
 import com.chatop.api.DTO.RegisterRequest;
-import com.chatop.api.configuration.SpringSecurityConfig;
 import com.chatop.api.model.User;
 import com.chatop.api.service.UserService;
 
@@ -61,8 +58,7 @@ public class UserController {
         User user = userService.findByEmail(loginRequest.login);
         if (user != null && bCryptPasswordEncoder().matches(loginRequest.password, user.getPassword())) { 
             // Générer et retourner un token (peut être implémenté en fonction de vos besoins)
-            String token = bCryptPasswordEncoder().encode(user.getPassword());
-            return token;
+            return userService.authenticate(new LoginRequest(loginRequest.login, loginRequest.password));
         } else {
             return "Échec de la connexion. Vérifiez vos informations d'identification.";
         }
