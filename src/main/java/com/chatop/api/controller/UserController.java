@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,7 +19,6 @@ import com.chatop.api.DTO.LoginRequest;
 import com.chatop.api.DTO.RegisterRequest;
 import com.chatop.api.configuration.SpringSecurityConfig;
 import com.chatop.api.model.User;
-import com.chatop.api.service.JWTService;
 import com.chatop.api.service.UserService;
 
 import java.util.Date;
@@ -28,20 +28,17 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class UserController {
-
-    public JWTService jwtService;
-
-    public UserController(JWTService jwtService) {
-        this.jwtService = jwtService;
-    }
 
     @Autowired
     private UserService userService;
     
     @Autowired
-    private SpringSecurityConfig springSecurityConfig;
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
 
     @PostMapping("/register")
     public @ResponseBody String addUser(@RequestBody RegisterRequest registerRequest) {
@@ -49,22 +46,22 @@ public class UserController {
         user.setName(registerRequest.name);
         user.setEmail(registerRequest.email);
         // Encodage du mot de passe avec BCryptPasswordEncoder
-        String encodedPassword = springSecurityConfig.passwordEncoder().encode(registerRequest.password);
+        String encodedPassword = bCryptPasswordEncoder().encode(registerRequest.password);
         user.setPassword(encodedPassword);
         LocalDateTime currentDateTime = LocalDateTime.now();
         Date currentDate = Date.from(currentDateTime.atZone(ZoneId.systemDefault()).toInstant());
         user.setCreatedAt(currentDate);
         user.setUpdatedAt(currentDate);
         userService.save(user);
-        return "Inscription réalisée avec succès pour l'utilisateur avec l'ID : ";
+        return userService.authenticate(new LoginRequest(registerRequest.email, registerRequest.password));
     }
 
     @PostMapping("/login")
     public String getToken(@RequestBody LoginRequest loginRequest) { 
         User user = userService.findByEmail(loginRequest.login);
-        if (user != null && springSecurityConfig.passwordEncoder().matches(loginRequest.password, user.getPassword())) { 
+        if (user != null && bCryptPasswordEncoder().matches(loginRequest.password, user.getPassword())) { 
             // Générer et retourner un token (peut être implémenté en fonction de vos besoins)
-            String token = jwtService.generateToken(loginRequest);
+            String token = bCryptPasswordEncoder().encode(user.getPassword());
             return token;
         } else {
             return "Échec de la connexion. Vérifiez vos informations d'identification.";
@@ -80,17 +77,10 @@ public class UserController {
         return userInfo.toString();
     }
 
-    
-    private StringBuffer getAuthLoginInfo (Principal user) {
-        StringBuffer emailInfo = new StringBuffer();
-        UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) user;
-        if(token.isAuthenticated()){
-            User u = (User) token.getPrincipal();
-            emailInfo.append("Welcome, " + u.getEmail());
-        } else {
-            emailInfo.append("NA");
-        }
-        return emailInfo;
+    @GetMapping("/me")
+    private String getAuthLoginInfo (Principal user) {
+        User userFinded = userService.findByEmail(user.getName());
+        return userFinded.toString();
     }
 
     @GetMapping
