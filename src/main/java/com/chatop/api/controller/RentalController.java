@@ -14,9 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,8 +45,8 @@ public class RentalController {
     @PostMapping(value = "/rentals/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Rental> createRental(
             @PathVariable Long id,
-            @RequestPart(value = "file", required = false) MultipartFile file,
-            @RequestBody RentalRequest rentalRequest) {
+            MultipartFile file,
+            RentalRequest rentalRequest) {
 
         // Récupérez l'utilisateur courant à partir du contexte de sécurité
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -78,4 +77,30 @@ public class RentalController {
         return new ResponseEntity<>(createdRental, HttpStatus.CREATED);
     }
 
+
+    @PutMapping("/rentals/{id}")
+    public ResponseEntity<Rental> updateRentalById(@PathVariable Long id, RentalRequest rentalRequest) {
+        // Récupérez le Rental existant à partir de la base de données
+        Optional<Rental> existingRentalOpt = rentalService.getRentalById(id);
+        if (!existingRentalOpt.isPresent()) {
+            // Si le Rental n'existe pas, retournez une réponse avec le statut 404 Not Found
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        // Mettez à jour les informations du Rental existant avec les nouvelles informations
+        Rental existingRental = existingRentalOpt.get();
+        existingRental.setName(rentalRequest.name);
+        existingRental.setSurface(rentalRequest.surface);
+        existingRental.setPrice(rentalRequest.price);
+        existingRental.setDescription(rentalRequest.description);
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        Date currentDate = Date.from(currentDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        existingRental.setUpdatedAt(currentDate);
+
+        // Enregistrez le Rental mis à jour en utilisant le service
+        Rental updatedRental = rentalService.saveRental(existingRental);
+
+        // Retournez une réponse avec le statut 200 OK et le Rental mis à jour
+        return new ResponseEntity<>(updatedRental, HttpStatus.OK);
+    }
 }

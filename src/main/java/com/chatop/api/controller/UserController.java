@@ -1,10 +1,6 @@
 package com.chatop.api.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +15,6 @@ import com.chatop.api.model.User;
 import com.chatop.api.service.UserService;
 
 import java.util.Date;
-import java.nio.file.attribute.UserPrincipal;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -64,27 +59,9 @@ public class UserController {
         }
     }
 
-    @GetMapping("/test")
-    public String getuserInfo(Principal user) {
-        StringBuffer userInfo = new StringBuffer();
-        if (user instanceof UsernamePasswordAuthenticationToken) {
-            userInfo.append(getAuthLoginInfo(user));
-        }
-        return userInfo.toString();
-    }
-
     @GetMapping("/me")
     private String getAuthLoginInfo (Principal user) {
         User userFinded = userService.findByEmail(user.getName());
         return userFinded.toString();
     }
-
-    @GetMapping
-    public ResponseEntity<?> getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-
-        return ResponseEntity.ok(userPrincipal);
-    }
-
 }

@@ -51,7 +51,6 @@ public class MessageControler {
             Date currentDate = Date.from(currentDateTime.atZone(ZoneId.systemDefault()).toInstant());
             message.setCreatedAt(currentDate);
             message.setUpdatedAt(currentDate);
-            // Ajouter d'autres attributs du message...
 
             // Enregistrez le message en utilisant le service approprié
             Message savedMessage = messageService.saveMessage(message);
