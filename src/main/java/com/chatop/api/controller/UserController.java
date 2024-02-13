@@ -1,18 +1,23 @@
 package com.chatop.api.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.chatop.api.DTO.LoginRequest;
 import com.chatop.api.DTO.RegisterRequest;
 import com.chatop.api.model.User;
 import com.chatop.api.service.UserService;
+
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.Date;
 import java.security.Principal;
@@ -31,9 +36,9 @@ public class UserController {
         return new BCryptPasswordEncoder();
     }
 
-
+    @SecurityRequirements()
     @PostMapping("/register")
-    public @ResponseBody String addUser(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<String> addUser(@RequestBody @NotNull RegisterRequest registerRequest) {
         User user = new User();
         user.setName(registerRequest.name);
         user.setEmail(registerRequest.email);
@@ -45,17 +50,19 @@ public class UserController {
         user.setCreatedAt(currentDate);
         user.setUpdatedAt(currentDate);
         userService.save(user);
-        return userService.authenticate(new LoginRequest(registerRequest.email, registerRequest.password));
+        String token = userService.authenticate(new LoginRequest(registerRequest.email, registerRequest.password));
+        return new ResponseEntity<>(token, HttpStatus.CREATED);
     }
 
+    @SecurityRequirements()
     @PostMapping("/login")
-    public String getToken(@RequestBody LoginRequest loginRequest) { 
+    public ResponseEntity<String> getToken(@RequestBody LoginRequest loginRequest) { 
         User user = userService.findByEmail(loginRequest.login);
         if (user != null && bCryptPasswordEncoder().matches(loginRequest.password, user.getPassword())) { 
-            // Générer et retourner un token (peut être implémenté en fonction de vos besoins)
-            return userService.authenticate(new LoginRequest(loginRequest.login, loginRequest.password));
+            String token = userService.authenticate(new LoginRequest(loginRequest.login, loginRequest.password));
+            return new ResponseEntity<>(token, HttpStatus.CREATED);
         } else {
-            return "Échec de la connexion. Vérifiez vos informations d'identification.";
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
     }
 

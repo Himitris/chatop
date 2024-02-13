@@ -38,6 +38,7 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // Retournez les autorisations/roles de l'utilisateur
+        
         return null;
     }
 

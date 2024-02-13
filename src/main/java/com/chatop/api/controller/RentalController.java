@@ -1,5 +1,6 @@
 package com.chatop.api.controller;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,11 +28,16 @@ import com.chatop.api.model.User;
 import com.chatop.api.service.RentalService;
 import com.chatop.api.service.StorageService;
 
+import io.swagger.v3.oas.annotations.Parameter;
+
+
 @RestController
 @RequestMapping("/api")
 public class RentalController {
     @Autowired
     private RentalService rentalService;
+
+    @Autowired
     private StorageService storageService;
 
     @GetMapping("/rentals")
@@ -44,9 +52,9 @@ public class RentalController {
 
     @PostMapping(value = "/rentals/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Rental> createRental(
-            @PathVariable Long id,
-            MultipartFile file,
-            RentalRequest rentalRequest) {
+            @Parameter(hidden = true) @RequestParam(required = false) @PathVariable Long id,
+            MultipartFile picture,
+            RentalRequest rentalRequest) throws IOException {
 
         // Récupérez l'utilisateur courant à partir du contexte de sécurité
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -59,9 +67,11 @@ public class RentalController {
         newRental.setName(rentalRequest.name);
         newRental.setSurface(rentalRequest.surface);
         newRental.setPrice(rentalRequest.price);
-        if (file != null && !file.isEmpty()) {
-            String fileUrl = storageService.save(file);
+        if (picture != null && !picture.isEmpty()) {
+            String fileUrl = storageService.save(picture);
             newRental.setPicture(fileUrl);
+        } else {
+            newRental.setPicture("noPicture");
         }
         newRental.setDescription(rentalRequest.description);
         LocalDateTime currentDateTime = LocalDateTime.now();
