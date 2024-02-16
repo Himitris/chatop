@@ -56,7 +56,7 @@ public class MessageControler {
             Message savedMessage = messageService.saveMessage(message);
 
             // Retournez une réponse avec le statut 201 Created et l'objet Message créé
-            return new ResponseEntity<>(savedMessage, HttpStatus.CREATED);
+            return new ResponseEntity<>("{\n  \"message\": \"Message send with success\"\n}", HttpStatus.CREATED);
         } else {
             // L'utilisateur ou la location avec l'ID fourni n'existe pas
             return new ResponseEntity<>("L'utilisateur ou la location avec l'ID fourni n'existe pas.", HttpStatus.BAD_REQUEST);

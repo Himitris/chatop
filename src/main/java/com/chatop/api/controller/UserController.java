@@ -16,7 +16,6 @@ import com.chatop.api.model.User;
 import com.chatop.api.service.UserService;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Date;
@@ -60,15 +59,17 @@ public class UserController {
         User user = userService.findByEmail(loginRequest.login);
         if (user != null && bCryptPasswordEncoder().matches(loginRequest.password, user.getPassword())) { 
             String token = userService.authenticate(new LoginRequest(loginRequest.login, loginRequest.password));
-            return new ResponseEntity<>(token, HttpStatus.CREATED);
+            // Création de l'objet JSON
+            String responseBody ="{\n  \"token\": \"" + token + "\"\n}";
+            return new ResponseEntity<>(responseBody, HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
     }
 
     @GetMapping("/me")
-    private String getAuthLoginInfo (Principal user) {
+    private ResponseEntity<User> getAuthLoginInfo (Principal user) {
         User userFinded = userService.findByEmail(user.getName());
-        return userFinded.toString();
+        return new ResponseEntity<>(userFinded, HttpStatus.CREATED);
     }
 }
