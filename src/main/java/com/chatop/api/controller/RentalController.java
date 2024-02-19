@@ -46,7 +46,12 @@ public class RentalController {
 
     @GetMapping("/rentals/{id}")
     public Optional<Rental> getRentalById(@PathVariable Long id) {
-        return rentalService.getRentalById(id);
+        if (rentalService.getRentalById(id) != null){
+            return rentalService.getRentalById(id);
+        } else {
+            return null;
+        }
+        
     }
 
     @PostMapping(value = "/rentals/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -24,10 +24,12 @@ import lombok.AllArgsConstructor;
 public class SpringSecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+    
     @Bean
     public static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())

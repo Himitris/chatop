@@ -38,19 +38,26 @@ public class UserController {
     @SecurityRequirements()
     @PostMapping("/register")
     public ResponseEntity<String> addUser(@RequestBody @NotNull RegisterRequest registerRequest) {
-        User user = new User();
-        user.setName(registerRequest.name);
-        user.setEmail(registerRequest.email);
-        // Encodage du mot de passe avec BCryptPasswordEncoder
-        String encodedPassword = bCryptPasswordEncoder().encode(registerRequest.password);
-        user.setPassword(encodedPassword);
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        Date currentDate = Date.from(currentDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        user.setCreatedAt(currentDate);
-        user.setUpdatedAt(currentDate);
-        userService.save(user);
-        String token = userService.authenticate(new LoginRequest(registerRequest.email, registerRequest.password));
-        return new ResponseEntity<>(token, HttpStatus.CREATED);
+        if (userService.findByEmail(registerRequest.email) != null) {
+            System.out.println("User with the same email already exists");
+            return new ResponseEntity<>("User with the same email already exists", HttpStatus.BAD_REQUEST);
+        }else {
+            System.out.println("User with the same email doesn't exist");
+            User user = new User();
+            user.setName(registerRequest.name);
+            user.setEmail(registerRequest.email);
+            // Encodage du mot de passe avec BCryptPasswordEncoder
+            String encodedPassword = bCryptPasswordEncoder().encode(registerRequest.password);
+            user.setPassword(encodedPassword);
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            Date currentDate = Date.from(currentDateTime.atZone(ZoneId.systemDefault()).toInstant());
+            user.setCreatedAt(currentDate);
+            user.setUpdatedAt(currentDate);        
+            userService.save(user);
+            String token = userService.authenticate(new LoginRequest(registerRequest.email, registerRequest.password));
+            return new ResponseEntity<>(token, HttpStatus.CREATED);
+        }
+        
     }
 
     @SecurityRequirements()
@@ -63,7 +70,7 @@ public class UserController {
             String responseBody ="{\n  \"token\": \"" + token + "\"\n}";
             return new ResponseEntity<>(responseBody, HttpStatus.CREATED);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Incorrect email or password", HttpStatus.UNAUTHORIZED);
         }
     }
 

@@ -59,7 +59,7 @@ public class MessageControler {
             return new ResponseEntity<>("{\n  \"message\": \"Message send with success\"\n}", HttpStatus.CREATED);
         } else {
             // L'utilisateur ou la location avec l'ID fourni n'existe pas
-            return new ResponseEntity<>("L'utilisateur ou la location avec l'ID fourni n'existe pas.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("User or rental id does not exist", HttpStatus.BAD_REQUEST);
         }
     }
 }
