@@ -1,22 +1,40 @@
 package com.chatop.api.service;
-import java.util.Optional;
 
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.io.IOException;
+import java.io.InputStream;
+
+@Service
 public class StorageService {
-    // This method is just an example. You need to implement it based on your storage requirements.
-    public String save(Optional<MultipartFile> file) {
-        // Implement your logic for saving the file (e.g., save to a local directory, upload to cloud storage, etc.)
-        // Return the URL or path of the saved file.
-        // Note: You may need to handle exceptions and generate a unique file name.
 
-        // For demonstration purposes, let's assume you are saving the file to a local directory.
-        // You should replace this with your actual storage logic.
-        String fileName = "your_generated_file_name";
-        String fileUrl = "/path/to/your/storage/directory/" + fileName;
+    private final Path rootLocation = Paths.get("C:\\Users\\Himitris\\Documents\\OpenClassRoom\\P3\\chatop\\storage");
 
-        // Here you could save the file to your chosen storage system
+    public String save(MultipartFile file) throws IOException {
+        if (file.isEmpty()) {
+            throw new IOException("Échec de l'enregistrement du fichier vide.");
+        }
 
-        return fileUrl;
+        // This may need to be enhanced if files with the same name are to be handled
+        Path destinationFile = this.rootLocation.resolve(
+                Paths.get(file.getOriginalFilename()))
+                .normalize().toAbsolutePath();
+
+        if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
+            // This is a security check
+            throw new IOException("Impossible d'enregistrer le fichier en dehors du répertoire actuel.");
+        }
+
+        try (InputStream inputStream = file.getInputStream()) {
+            Files.copy(inputStream, destinationFile,
+                    StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        return destinationFile.toString();
     }
 }

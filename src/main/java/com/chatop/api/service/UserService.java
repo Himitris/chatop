@@ -3,21 +3,35 @@ package com.chatop.api.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.chatop.api.DTO.LoginRequest;
 import com.chatop.api.model.User;
 import com.chatop.api.repository.UserRepository;
+import com.chatop.api.security.JwtTokenProvider;
 
 import lombok.Data;
 
 @Data
 @Service
 public class UserService {
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
     @Autowired
     private UserRepository userRepository;
 
-    public Optional<User> getMe() {
-        return userRepository.findById((long) 1);
+    public User getMe() {
+        String name = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(name);
     }
 
     public void deleteUser(final Long id) {
@@ -32,4 +46,22 @@ public class UserService {
         User savedUser = userRepository.save(user);
         return savedUser;
     }
+
+    public String authenticate(LoginRequest loginRequest) {
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getLogin(), loginRequest.getPassword()));
+        } catch (AuthenticationCredentialsNotFoundException ex) {
+            throw new AuthenticationCredentialsNotFoundException("Authentication not permitted");
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token = jwtTokenProvider.generateToken(authentication);
+        return token;
+    }
+
+    public Optional<User> getUserById(final Long id) {
+        return userRepository.findById(id);
+    }
+
 }
