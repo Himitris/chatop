@@ -39,10 +39,8 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<String> addUser(@RequestBody @NotNull RegisterRequest registerRequest) {
         if (userService.findByEmail(registerRequest.email) != null) {
-            System.out.println("User with the same email already exists");
             return new ResponseEntity<>("User with the same email already exists", HttpStatus.BAD_REQUEST);
         }else {
-            System.out.println("User with the same email doesn't exist");
             User user = new User();
             user.setName(registerRequest.name);
             user.setEmail(registerRequest.email);
@@ -55,7 +53,9 @@ public class UserController {
             user.setUpdatedAt(currentDate);        
             userService.save(user);
             String token = userService.authenticate(new LoginRequest(registerRequest.email, registerRequest.password));
-            return new ResponseEntity<>(token, HttpStatus.CREATED);
+            // Création de l'objet JSON
+            String responseBody ="{\n  \"token\": \"" + token + "\"\n}";
+            return new ResponseEntity<>(responseBody, HttpStatus.CREATED);
         }
         
     }
