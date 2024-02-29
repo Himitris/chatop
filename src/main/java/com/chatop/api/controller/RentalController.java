@@ -28,6 +28,8 @@ import com.chatop.api.service.RentalService;
 import com.chatop.api.service.StorageService;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 
 @RestController
@@ -57,6 +59,9 @@ public class RentalController {
     @PostMapping(value = "/rentals/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Rental> createRental(
             @Parameter(hidden = true) @RequestParam(required = false) @PathVariable Long id,
+            @Parameter(description = "Picture file", 
+                   content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, 
+                   schema = @Schema(type = "string", format = "binary")))
             MultipartFile picture,
             RentalRequest rentalRequest) throws IOException {
 

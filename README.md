@@ -10,10 +10,21 @@ Chatop API is a Java-based application developed using Spring Boot and Spring Se
 - JWT (JSON Web Token)
 - Springdoc (Swagger)
 
+## Database configuration
+
+- If you haven't already installed MySQL on your machine, download it from the official MySQL website (https://dev.mysql.com/downloads/installer/) and follow the installation instructions for your operating system.
+- After MySQL installation, initialize your database by running the provided script located at chatop/resources/sql. This script creates the chatop database and all necessary tables. You can run it with the command: 
+    mysql -u your_username -p < script_name.sql
+- In your application.properties file, uncomment this 2 lines to use your username and password infos:
+    spring.datasource.username=root
+    spring.datasource.password=root
+    Remember to replace root with your actual credentials.
+    
+
 ## Run the application
 
 Clone the repository: git clone https://github.com/Himitris/chatop.git
-Configure your database in application.properties.
+Modify your storage folder by changing in application.properties, the line: storage.location=C:\\Users\\Himitris\\Documents\\OpenClassRoom\\P3\\chatop\\storage 
 Open a terminal in the project directory.
 Run the application: mvn spring-boot:run
 Access the API at http://localhost:3001 via Postman for example.
@@ -41,3 +52,4 @@ Access Swagger documentation at http://localhost:3001/swagger-ui/index.html for 
 ## Author
 
 Antoine Gautier
+

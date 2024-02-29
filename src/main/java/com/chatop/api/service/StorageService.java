@@ -1,5 +1,6 @@
 package com.chatop.api.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,7 +14,11 @@ import java.io.InputStream;
 @Service
 public class StorageService {
 
-    private final Path rootLocation = Paths.get("C:\\Users\\Himitris\\Documents\\OpenClassRoom\\P3\\chatop\\storage");
+    private final Path rootLocation;
+
+    public StorageService(@Value("${storage.location}") String storageLocation) {
+        this.rootLocation = Paths.get(storageLocation);
+    }
 
     public String save(MultipartFile file) throws IOException {
         if (file.isEmpty()) {
