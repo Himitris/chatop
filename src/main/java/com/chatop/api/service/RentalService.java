@@ -29,7 +29,6 @@ public class RentalService {
     }
 
     public Rental saveRental(Rental rental) {
-        Rental savedRental = rentalRepository.save(rental);
-        return savedRental;
+        return rentalRepository.save(rental);
     }
 }

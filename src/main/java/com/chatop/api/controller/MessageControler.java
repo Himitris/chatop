@@ -53,7 +53,7 @@ public class MessageControler {
             message.setUpdatedAt(currentDate);
 
             // Enregistrez le message en utilisant le service approprié
-            Message savedMessage = messageService.saveMessage(message);
+            messageService.saveMessage(message);
 
             // Retournez une réponse avec le statut 201 Created et l'objet Message créé
             return new ResponseEntity<>("{\n  \"message\": \"Message send with success\"\n}", HttpStatus.CREATED);

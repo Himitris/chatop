@@ -88,12 +88,9 @@ public class RentalController {
         newRental.setCreatedAt(currentDate);
         newRental.setUpdatedAt(currentDate);
         newRental.setOwnerId(currentUserId);
-
-        // Enregistrez le nouvel objet Rental en utilisant le service
-        Rental createdRental = rentalService.saveRental(newRental);
-
+        
         // Retournez une réponse avec le statut 201 Created et l'objet Rental créé
-        return new ResponseEntity<>(createdRental, HttpStatus.CREATED);
+        return new ResponseEntity<>(rentalService.saveRental(newRental), HttpStatus.CREATED);
     }
 
 

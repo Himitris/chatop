@@ -53,9 +53,7 @@ public class UserController {
             user.setUpdatedAt(currentDate);        
             userService.save(user);
             String token = userService.authenticate(new LoginRequest(registerRequest.email, registerRequest.password));
-            // Création de l'objet JSON
-            String responseBody ="{\n  \"token\": \"" + token + "\"\n}";
-            return new ResponseEntity<>(responseBody, HttpStatus.CREATED);
+            return new ResponseEntity<>("{\n  \"token\": \"" + token + "\"\n}", HttpStatus.CREATED);
         }
         
     }
@@ -66,9 +64,7 @@ public class UserController {
         User user = userService.findByEmail(loginRequest.login);
         if (user != null && bCryptPasswordEncoder().matches(loginRequest.password, user.getPassword())) { 
             String token = userService.authenticate(new LoginRequest(loginRequest.login, loginRequest.password));
-            // Création de l'objet JSON
-            String responseBody ="{\n  \"token\": \"" + token + "\"\n}";
-            return new ResponseEntity<>(responseBody, HttpStatus.CREATED);
+            return new ResponseEntity<>("{\n  \"token\": \"" + token + "\"\n}", HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>("Incorrect email or password", HttpStatus.UNAUTHORIZED);
         }
@@ -76,7 +72,6 @@ public class UserController {
 
     @GetMapping("/me")
     private ResponseEntity<User> getAuthLoginInfo (Principal user) {
-        User userFinded = userService.findByEmail(user.getName());
-        return new ResponseEntity<>(userFinded, HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.findByEmail(user.getName()), HttpStatus.CREATED);
     }
 }

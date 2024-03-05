@@ -25,7 +25,6 @@ public class MessageService {
     }
 
     public Message saveMessage(Message message) {
-        Message savedMessage = messageRepository.save(message);
-        return savedMessage;
+        return messageRepository.save(message);
     }
 }

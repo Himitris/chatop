@@ -56,8 +56,7 @@ public class UserService {
             throw new AuthenticationCredentialsNotFoundException("Authentication not permitted");
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtTokenProvider.generateToken(authentication);
-        return token;
+        return jwtTokenProvider.generateToken(authentication);
     }
 
     public Optional<User> getUserById(final Long id) {

@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -25,13 +26,17 @@ public class StorageService {
             throw new IOException("Échec de l'enregistrement du fichier vide.");
         }
 
-        // This may need to be enhanced if files with the same name are to be handled
+        // Générer un nom de fichier unique
+        String originalFileName = file.getOriginalFilename();
+        String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        String newFileName = UUID.randomUUID().toString() + fileExtension; // Ajout d'un UUID
+
+
         Path destinationFile = this.rootLocation.resolve(
-                Paths.get(file.getOriginalFilename()))
+                Paths.get(newFileName))
                 .normalize().toAbsolutePath();
 
         if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
-            // This is a security check
             throw new IOException("Impossible d'enregistrer le fichier en dehors du répertoire actuel.");
         }
 
