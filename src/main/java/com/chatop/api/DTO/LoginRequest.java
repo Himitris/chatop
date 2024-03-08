@@ -1,4 +1,4 @@
-package com.chatop.api.DTO;
+package com.chatop.api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginRequest {
-    public String login;
+    public String email;
     public String password;
 }
 

@@ -5,13 +5,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.chatop.api.DTO.LoginRequest;
-import com.chatop.api.DTO.RegisterRequest;
+import com.chatop.api.dto.LoginRequest;
+import com.chatop.api.dto.LoginResponse;
+import com.chatop.api.dto.RegisterRequest;
 import com.chatop.api.model.User;
 import com.chatop.api.service.UserService;
 
@@ -19,12 +21,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Date;
+import java.util.Optional;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api")
 public class UserController {
 
     @Autowired
@@ -36,8 +39,8 @@ public class UserController {
     }
 
     @SecurityRequirements()
-    @PostMapping("/register")
-    public ResponseEntity<String> addUser(@RequestBody @NotNull RegisterRequest registerRequest) {
+    @PostMapping("/auth/register")
+    public ResponseEntity<?> addUser(@RequestBody @NotNull RegisterRequest registerRequest) {
         if (userService.findByEmail(registerRequest.email) != null) {
             return new ResponseEntity<>("User with the same email already exists", HttpStatus.BAD_REQUEST);
         }else {
@@ -49,29 +52,40 @@ public class UserController {
             user.setPassword(encodedPassword);
             LocalDateTime currentDateTime = LocalDateTime.now();
             Date currentDate = Date.from(currentDateTime.atZone(ZoneId.systemDefault()).toInstant());
-            user.setCreatedAt(currentDate);
-            user.setUpdatedAt(currentDate);        
+            user.setCreated_at(currentDate);
+            user.setUpdated_at(currentDate);        
             userService.save(user);
-            String token = userService.authenticate(new LoginRequest(registerRequest.email, registerRequest.password));
-            return new ResponseEntity<>("{\n  \"token\": \"" + token + "\"\n}", HttpStatus.CREATED);
+            LoginResponse response = new LoginResponse(userService.authenticate(new LoginRequest(registerRequest.email, registerRequest.password)));
+
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         }
         
     }
 
     @SecurityRequirements()
-    @PostMapping("/login")
-    public ResponseEntity<String> getToken(@RequestBody LoginRequest loginRequest) { 
-        User user = userService.findByEmail(loginRequest.login);
+    @PostMapping("/auth/login")
+    public ResponseEntity<?> getToken(@RequestBody LoginRequest loginRequest) { 
+        User user = userService.findByEmail(loginRequest.email);
         if (user != null && bCryptPasswordEncoder().matches(loginRequest.password, user.getPassword())) { 
-            String token = userService.authenticate(new LoginRequest(loginRequest.login, loginRequest.password));
-            return new ResponseEntity<>("{\n  \"token\": \"" + token + "\"\n}", HttpStatus.CREATED);
+            return new ResponseEntity<>(new LoginResponse(userService.authenticate(new LoginRequest(loginRequest.email, loginRequest.password))), HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>("Incorrect email or password", HttpStatus.UNAUTHORIZED);
         }
     }
 
-    @GetMapping("/me")
+    @GetMapping("/auth/me")
     private ResponseEntity<User> getAuthLoginInfo (Principal user) {
         return new ResponseEntity<>(userService.findByEmail(user.getName()), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/user/{id}")
+    private ResponseEntity<Optional<User>> getUserById (@PathVariable Long id) {
+        Optional<User> getUserById = userService.findById(id);
+        if (getUserById != null){
+            return  new ResponseEntity<>(getUserById, HttpStatus.CREATED);
+        } else {
+            return null;
+        }
+        
     }
 }

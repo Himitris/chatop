@@ -10,14 +10,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.chatop.api.DTO.LoginRequest;
+import com.chatop.api.dto.LoginRequest;
 import com.chatop.api.model.User;
 import com.chatop.api.repository.UserRepository;
 import com.chatop.api.security.JwtTokenProvider;
 
-import lombok.Data;
-
-@Data
 @Service
 public class UserService {
 
@@ -41,6 +38,10 @@ public class UserService {
     public User findByEmail(final String email) {
         return userRepository.findByEmail(email);
     }
+    
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
 
     public User save (User user) {
         User savedUser = userRepository.save(user);
@@ -51,7 +52,7 @@ public class UserService {
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getLogin(), loginRequest.getPassword()));
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
         } catch (AuthenticationCredentialsNotFoundException ex) {
             throw new AuthenticationCredentialsNotFoundException("Authentication not permitted");
         }

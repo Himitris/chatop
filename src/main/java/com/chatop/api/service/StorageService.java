@@ -26,23 +26,24 @@ public class StorageService {
             throw new IOException("Échec de l'enregistrement du fichier vide.");
         }
 
-        // Générer un nom de fichier unique
         String originalFileName = file.getOriginalFilename();
-        String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-        String newFileName = UUID.randomUUID().toString() + fileExtension; // Ajout d'un UUID
+        Path destinationFile = this.rootLocation.resolve(Paths.get(originalFileName)).normalize().toAbsolutePath();
 
-
-        Path destinationFile = this.rootLocation.resolve(
-                Paths.get(newFileName))
-                .normalize().toAbsolutePath();
+        if (Files.exists(destinationFile)) {
+            String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+            String baseName = originalFileName.substring(0, originalFileName.lastIndexOf("."));
+            
+            // Générer un nouveau nom de fichier pour éviter les conflits
+            String newFileName = baseName + "-" + UUID.randomUUID().toString() + fileExtension;
+            destinationFile = this.rootLocation.resolve(Paths.get(newFileName)).normalize().toAbsolutePath();
+        }
 
         if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
             throw new IOException("Impossible d'enregistrer le fichier en dehors du répertoire actuel.");
         }
 
         try (InputStream inputStream = file.getInputStream()) {
-            Files.copy(inputStream, destinationFile,
-                    StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
         }
 
         return destinationFile.toString();

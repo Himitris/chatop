@@ -18,16 +18,16 @@ Chatop API is a Java-based application developed using Spring Boot and Spring Se
 - Then type command : "USE chatop;" to go inside the database
   initialize your database by running the provided script located at chatop/resources/sql. This script creates the chatop database and all necessary tables. You can run it with the command:
   mysql -u your_username -p < script_name.sql
-- In your application.properties file, replace in this 2 lines to use your database username and password infos:
-  spring.datasource.username=<YOURUSERNAME>
-  spring.datasource.password=<YOURPASSWORD>
+- Remember to initialize the following two environment variables:
+  SPRING_DATASOURCE_USERNAME
+  SPRING_DATASOURCE_PASSWORD
 
 ## Run the application
 
 Clone the repository: git clone https://github.com/Himitris/chatop.git
 Modify your storage folder by changing in application.properties, the line: storage.location=C:\\Users\\Himitris\\Documents\\OpenClassRoom\\P3\\chatop\\storage
-Finally create your secret jwt key and replace in application.properties the line : app.jwt-secret=<YOURSECRETKEY> with your key.
-The `YOURSECRETKEY` must contain a 64 random hexadecimal characters password
+Next, you must set up the environment variable for the JWT secret key, named SPRING_JWT_SECRETKEY.
+The SPRING_JWT_SECRETKEY variable must contain a 64 random hexadecimal characters password
 Open a terminal in the project directory.
 Run the application: mvn spring-boot:run
 Access the API at http://localhost:3001 via Postman for example.

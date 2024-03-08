@@ -7,9 +7,6 @@ import org.springframework.stereotype.Service;
 import com.chatop.api.model.Rental;
 import com.chatop.api.repository.RentalRepository;
 
-import lombok.Data;
-
-@Data
 @Service
 public class RentalService {
     @Autowired

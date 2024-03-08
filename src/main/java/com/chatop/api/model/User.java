@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Date;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,11 +26,9 @@ public class User implements UserDetails {
 
     private String password;
 
-    @Column(name="created_at")
-    private Date createdAt;
+    private Date created_at;
 
-    @Column(name="updated_at")
-    private Date updatedAt;
+    private Date updated_at;
 
     // Implémentation des méthodes de UserDetails
 

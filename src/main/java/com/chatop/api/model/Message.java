@@ -2,7 +2,6 @@ package com.chatop.api.model;
 
 import java.util.Date;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,17 +19,13 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="rental_id")
-    private int rentalId;
+    private int rental_id;
 
-    @Column(name="user_id")
-    private int userId;
+    private int user_id;
 
     private String message;
 
-    @Column(name="created_at")
-    private Date createdAt;
+    private Date created_at;
 
-    @Column(name="updated_at")
-    private Date updatedAt;
+    private Date updated_at;
 }

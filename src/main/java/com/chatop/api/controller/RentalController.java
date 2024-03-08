@@ -17,11 +17,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.chatop.api.DTO.RentalRequest;
+import com.chatop.api.dto.RentalRequest;
+import com.chatop.api.dto.RentalResponse;
+import com.chatop.api.dto.RentalsResponse;
 import com.chatop.api.model.Rental;
 import com.chatop.api.model.User;
 import com.chatop.api.service.RentalService;
@@ -42,23 +43,23 @@ public class RentalController {
     private StorageService storageService;
 
     @GetMapping("/rentals")
-    public Iterable<Rental> getRentals() {
-        return rentalService.getRentals();
+    public RentalsResponse getRentals() {
+        return new RentalsResponse(rentalService.getRentals());
     }
 
     @GetMapping("/rentals/{id}")
     public Optional<Rental> getRentalById(@PathVariable Long id) {
-        if (rentalService.getRentalById(id) != null){
-            return rentalService.getRentalById(id);
+        Optional<Rental> getRentalById = rentalService.getRentalById(id);
+        if (getRentalById != null){
+            return getRentalById;
         } else {
             return null;
         }
         
     }
 
-    @PostMapping(value = "/rentals/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Rental> createRental(
-            @Parameter(hidden = true) @RequestParam(required = false) @PathVariable Long id,
+    @PostMapping(value = "/rentals", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createRental(
             @Parameter(description = "Picture file", 
                    content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, 
                    schema = @Schema(type = "string", format = "binary")))
@@ -72,7 +73,6 @@ public class RentalController {
 
         // Créez un nouvel objet Rental avec les paramètres fournis
         Rental newRental = new Rental();
-        newRental.setId(id);
         newRental.setName(rentalRequest.name);
         newRental.setSurface(rentalRequest.surface);
         newRental.setPrice(rentalRequest.price);
@@ -85,17 +85,17 @@ public class RentalController {
         newRental.setDescription(rentalRequest.description);
         LocalDateTime currentDateTime = LocalDateTime.now();
         Date currentDate = Date.from(currentDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        newRental.setCreatedAt(currentDate);
-        newRental.setUpdatedAt(currentDate);
-        newRental.setOwnerId(currentUserId);
-        
+        newRental.setCreated_at(currentDate);
+        newRental.setUpdated_at(currentDate);
+        newRental.setOwner_id(currentUserId);
+        rentalService.saveRental(newRental);
         // Retournez une réponse avec le statut 201 Created et l'objet Rental créé
-        return new ResponseEntity<>(rentalService.saveRental(newRental), HttpStatus.CREATED);
+        return new ResponseEntity<>(new RentalResponse("Rental created !"), HttpStatus.CREATED);
     }
 
 
     @PutMapping("/rentals/{id}")
-    public ResponseEntity<Rental> updateRentalById(@PathVariable Long id, RentalRequest rentalRequest) {
+    public ResponseEntity<?> updateRentalById(@PathVariable Long id, RentalRequest rentalRequest) {
         // Récupérez le Rental existant à partir de la base de données
         Optional<Rental> existingRentalOpt = rentalService.getRentalById(id);
         if (!existingRentalOpt.isPresent()) {
@@ -111,12 +111,12 @@ public class RentalController {
         existingRental.setDescription(rentalRequest.description);
         LocalDateTime currentDateTime = LocalDateTime.now();
         Date currentDate = Date.from(currentDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        existingRental.setUpdatedAt(currentDate);
+        existingRental.setUpdated_at(currentDate);
 
         // Enregistrez le Rental mis à jour en utilisant le service
-        Rental updatedRental = rentalService.saveRental(existingRental);
+        rentalService.saveRental(existingRental);
 
         // Retournez une réponse avec le statut 200 OK et le Rental mis à jour
-        return new ResponseEntity<>(updatedRental, HttpStatus.OK);
+        return new ResponseEntity<>(new RentalResponse("Rental updated !"), HttpStatus.OK);
     }
 }

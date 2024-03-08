@@ -8,9 +8,6 @@ import org.springframework.stereotype.Service;
 import com.chatop.api.model.Message;
 import com.chatop.api.repository.MessageRepository;
 
-import lombok.Data;
-
-@Data
 @Service
 public class MessageService {
     @Autowired

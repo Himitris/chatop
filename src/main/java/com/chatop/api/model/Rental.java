@@ -2,7 +2,6 @@ package com.chatop.api.model;
 
 import java.util.Date;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,19 +22,16 @@ public class Rental {
     private String name;
 
     private int surface;
-
+    
     private int price;
 
     private String picture;
 
     private String description;
     
-    @Column(name="owner_id")
-    private Long ownerId;
+    private Long owner_id;
     
-    @Column(name="created_at")
-    private Date createdAt;
+    private Date created_at;
     
-    @Column(name="updated_at")
-    private Date updatedAt;
+    private Date updated_at;
 }
